@@ -27,15 +27,15 @@ class LED(object):
         if status == True:
             GPIO.output(self.LedPin1, GPIO.LOW)      # LED ON
             time.sleep(5)
-            GPIO.output(self.LedPin1, GPIO.HIGH)     # LED OFF after 2 sec
+            GPIO.output(self.LedPin1, GPIO.HIGH)     # LED OFF after 5 sec
         else:    
             GPIO.output(self.LedPin1, GPIO.HIGH)     # LED OFF
 
     def setRed(self, status):     # Pin 12
         if status == True:
             GPIO.output(self.LedPin2, GPIO.LOW)      # LED ON
-            time.sleep(2)
-            GPIO.output(self.LedPin2, GPIO.HIGH)     # LED OFF after 2 sec
+            time.sleep(5)
+            GPIO.output(self.LedPin2, GPIO.HIGH)     # LED OFF after 5 sec
         else:    
             GPIO.output(self.LedPin2, GPIO.HIGH)     # LED OFF
 
@@ -46,9 +46,13 @@ class LED(object):
         GPIO.cleanup()
 
 
-#Test
-# setLED = LED()
-# setLED.setup()
-# setLED.setGreen(True)
-# setLED.setRed(False)
-# setLED.destroy()
+#Test the LED class
+# if __name__ == '__main__':
+#     setLED = LED()
+#     #Turn ON Green LED
+#     setLED.setGreen(True)
+#     setLED.setRed(False)
+#     #Turn ON Red LED
+#     setLED.setGreen(False)
+#     setLED.setRed(True)
+#     setLED.destroy()

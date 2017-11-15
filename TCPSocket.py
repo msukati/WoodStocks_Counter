@@ -16,7 +16,7 @@ import os
 HOST = ''								# Uncomment if you want to receive file
 #HOST = '192.168.1.104'					# Uncomment if you want to send file
 PORT = 8080
-BUFSIZ = 1024							#Size of the buffer
+BUFSIZ = 1024							# Size of the buffer
 
 class TCPSocket(object):			
 	def __init__(self, sock=None):
@@ -31,6 +31,7 @@ class TCPSocket(object):
 		self.sock.connect((host, port))
 
 
+	# This function is used for sending a file
 	def send(self, filename):
 		print("Sending...")
 		data = None
@@ -46,15 +47,13 @@ class TCPSocket(object):
 				data = self.sock.recv(BUFSIZ)
 		except socket.error as msg:
 			print(msg)
+			data = "NOK"
 		finally:
 			self.sock.close()	
 			return data
 
 
-	def recv(self):
-		return self.sock.recv(BUFSIZ)
-
-
+	# This function is used to receive a file
 	def receive(self, host, port):		
 		self.sock.bind((host, port))					# Bind the IP Address to the port
 		self.sock.listen(1)								# Wait for 1 client connection
@@ -64,36 +63,33 @@ class TCPSocket(object):
 		print("Got connection from ", cAddr)
 		print("Receiving file...")		
 
-		timeStr = time.strftime("%d%m%Y")	
-		filename = "stocklist_" + timeStr + ".csv"		# The filename has postfix with the date it was created
+		filename = "stocklist.csv"		
 
-		while True:
-			try:
-				clientData = clientSocket.recv(BUFSIZ)
-				with open(filename, 'w') as file:
-					while (clientData != "\$End"):
-						file.write(clientData)
-						clientData = clientSocket.recv(BUFSIZ)
-					print("Receiving complete.")
-				if clientData == "\$End":
-					clientSocket.sendall("OK")
-					break
-			except socket.error as msg:
-				print(msg)
-				break
+		
+		try:
+			clientData = clientSocket.recv(BUFSIZ)
+			with open(filename, 'w') as file:
+				while (clientData != "\$End"):
+					file.write(clientData)
+					clientData = clientSocket.recv(BUFSIZ)
+				print("Receiving complete.")
+			if clientData == "\$End":
+				clientSocket.sendall("OK")
+		except socket.error as msg:
+			print(msg)
 
 		clientSocket.shutdown(socket.SHUT_WR)		
 		clientSocket.close()					# Close the connection	
 
 
-# Use this to test receive file
-# print("Waiting for connection...")
-# recvSocket = TCPSocket()
-# recvSocket.receive(HOST, PORT)
-
-
-# Use this to test send file
-# sendSocket = TCPSocket()
-# sendSocket.connect(HOST, PORT)
-# sendSocket.send("Rubric_3.txt")
-# sendSocket.close()
+# if __name__ == '__main__':
+	# Uncomment to test receiving file
+# 	print("Waiting for connection...")
+# 	recvSocket = TCPSocket()
+# 	recvSocket.receive(HOST, PORT)
+	
+# Uncomment to test sending file
+	# sendSocket = TCPSocket()
+	# sendSocket.connect(HOST, PORT)
+	# sendSocket.send("Rubric_3.txt")
+	# sendSocket.close()

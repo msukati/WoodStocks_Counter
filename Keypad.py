@@ -84,19 +84,17 @@ class Keypad(object):
                 GPIO.setup(self.ROW[i], GPIO.IN, pull_up_down=GPIO.PUD_UP) 
         for j in range(len(self.COLUMN)):
                 GPIO.setup(self.COLUMN[j], GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        time.sleep(0.01)
          
-#if __name__ == '__main__':
-    # Initialize the keypad class
+#Test the Keypad class
+# if __name__ == '__main__':
+#    # Initialize the keypad class
 #    kp = Keypad()
-#    list = ['']
-#    digit = None
-    # Loop while waiting for a keypress
-#    while True:            
-        # Print the result
-#        digit = kp.getKey()
-#        if digit != None and digit != '*':
-#            list.append(str(digit))
-#            time.sleep(0.5)
-#            digit = None        
-#        elif digit == '*':
-#            print(''.join(list))
+#    # Loop while waiting for a keypress
+#    while True:                    
+#        digit = None
+#        while digit == None:
+#            digit = kp.getKey()
+#        # Print the result
+#        print(digit)
+#        time.sleep(0.5)

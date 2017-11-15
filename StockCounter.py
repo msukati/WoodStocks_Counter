@@ -21,7 +21,7 @@ import LED
 import Keypad
 
 # Constants
-HOST = '192.168.1.101'										# Use this if you want to send file
+HOST = '192.168.1.102'										# IP Address of the computer where you want to send the file
 PORT = 8080
 
 # The main function
@@ -32,63 +32,69 @@ def main():
 # This function contains the core functionality of the StockCounter class 
 def runStockCounter(filename):
 	try:
+        if os.stat(filename).st_size == 0: 				# Checks if file is empty
+            print("Terminating program. File is empty!!!")
+            sys.exit(1)
+                            
 		while True:
 			with open(filename, 'r') as rfile:					# Opens the file
 				readCSV = csv.reader(rfile, delimiter=',')		# Returns a reader object that will iterate through the lines of the file
-				
-				if readCSV == None:   #Terminate the program when file is empty
-                    print("File is empty!!!")
-                    sys.exit(1)
-                                
 				readCSV.next()									# Skips the header row and points to the first item row
 
 				for row in readCSV:
 					displayItem(row)							
 					print("\n")
-
-					#newCount = int(input("Enter NEW Count: "))	# Remove this line after Keypad class is tested
-					# Use this for Keypad class
-					print("Enter NEW Count: ")
-					newCount = useKeypad()
-					print(newCount)
-					time.sleep(0.5)   							#This is needed so that the loop will be displayed properly
 					
-					writeFile(row, newCount)					
+					newCount = ""
+					while (newCount.isdigit() == False):
+						print("Enter NEW Count: ", )
+						newCount = useKeypad()				# User should enter a digit or it will keep on asking a new count
+						print(newCount)
+						time.sleep(0.5)   					# This is needed so that the loop will be displayed properly
+					
+					writeFile(row, int(newCount))					
 					os.system("cls||clear")						
-			
-			os.remove("stocklist.csv")							# After the new stock count was written to the temporary file, remove the old file			
-			os.rename("temp.csv", "stocklist.csv")				# Rename the temporary file to stocklist.csv which will now contain the updated stock count
+						
+			# Give the user an option to edit the file again or send directly										
+			option = ""
+			while (option != "A" and option != "B"):
+				print("\nPress A to send file. Press B to edit the stock count again. ")	# User should enter A or B or it will keep on asking an option
+				option = useKeypad()
+				print(option)			
+				time.sleep(0.3)
+			os.system("cls||clear")	
 
-			# Give the user an option to edit the file again or send directly							
-			print(r"\nSend the file to the server[A/B] A for Yes, B for No: ") # If A, send the csv file. If B, go back to edit the file again
-			option = useKeypad()
-			print(option)
-			time.sleep(0.5)
+
+			os.remove(filename)							# After the new stock count was written to the temporary file, remove the old file			
+			os.rename("temp.csv", filename)				# Rename the temporary file to stocklist.csv which will now contain the updated stock count
+			
 			if (option.upper() == "A"):				
 				sendTCPSocket = TCPSocket.TCPSocket()
 				sendTCPSocket.connect(HOST, PORT)
-				msg = sendTCPSocket.send("stocklist.csv")
-				#msg = "NOK"
-				
-				print("Message from receiver is " + msg)
+				msg = sendTCPSocket.send(filename)
+								
+				print("Message: "+ str(msg))
 
 				#Activate the LED
 				setLED = LED.LED()
-
-				if msg == "OK":					# Turn on Green LED for 2 sec to indicate sending OK
+				if msg == "OK":					# Turn on Green LED for 5 sec to indicate sending OK
 					setLED.setGreen(True)
 					setLED.setRed(False)
-				else:							# Turn on Red LED for 2 sec to indicate sending NOK
+				else:							# Turn on Red LED for 5 sec to indicate sending NOK
 					setLED.setGreen(False)
 					setLED.setRed(True)
 
 				setLED.destroy()
 
-				break # if (option == "y")			
+				break # if (option == "A")			
 
 	except IOError as e: 									# Catch the error in case the file is missing.
 		print('Could not open file {}! '.format(filename), e)
 		sys.exit(1)
+
+	except KeyboardInterrupt:
+		os.remove(filename)							# After the new stock count was written to the temporary file, remove the old file			
+		os.rename("temp.csv", filename)				# Rename the temporary file to stocklist.csv which will now contain the updated stock count
 
 # This will display the item information to the user
 def displayItem(row):		
@@ -99,24 +105,26 @@ def displayItem(row):
 
 
 def useKeypad():
-	#pass
 	kp = Keypad.Keypad()
 	list = ['']
-        digit = None
-        num = None
+    digit = None
+    num = None
 
     # Loop while waiting for a keypress
-        while True:        
-            digit = kp.getKey()
-            if digit != None and digit != '*':
-                list.append(str(digit))
-                time.sleep(0.5)
-                digit = None        
-            elif digit == '*':
-                num = ''.join(list)                
-                break
+    while True:        
+        digit = kp.getKey()
+        if digit != None and digit != '*' and digit != "A" and digit != "B":
+            list.append(str(digit))
+            time.sleep(0.5)
+            digit = None        
+        elif digit == '*':
+            num = ''.join(list)                
+            break
+        elif digit == "A" or digit == "B":
+            num = digit
+            break
 
-        return num
+    return num
 
 # This will create the new file containing the new stock count
 def writeFile(row, value):	
