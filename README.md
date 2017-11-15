@@ -1,4 +1,4 @@
-# WoodStocks_Counter
+# WoodStocks_StockCount
 This repository contains the files for the application "StockCounter" for Wood Stocks company.
 The application reads the file "stocklist.csv" and displays each item one at a time on the screen. The user is then asked to input the new stock count of each item and will only stop after all the items were displayed. Then the user is asked whether to send the file to a receiving computer or edit the file again. If the user chooses to edit the file again, then the same procedure mentioned above is made. Else, the updated file is sent to another computer. If sending is successful, the Green LED will turn ON for 5 seconds. If sending fails, the Red LED instead will turn ON for 5 seconds. Then the application ends.
 
